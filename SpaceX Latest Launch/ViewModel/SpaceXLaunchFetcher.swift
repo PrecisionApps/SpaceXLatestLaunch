@@ -20,8 +20,8 @@ class SpaceXLaunchFetcher : ObservableObject {
     @Published var error : String!
     
     init() {
-        fetchRandomLaunch()
-//        fetchLaunch()
+//        fetchRandomLaunch() // Can be used for testing, the latest launch did not have image or description. To use, remove comment from this line and comment out the next line
+        fetchLaunch()
     }
     
     
@@ -78,7 +78,7 @@ class SpaceXLaunchFetcher : ObservableObject {
             }
             objectWillChange.send()
             do {
-                let newLaunch = try! JSONDecoder().decode([SpaceXLaunch].self, from: (response.data!))
+                let newLaunch = try JSONDecoder().decode([SpaceXLaunch].self, from: (response.data!))
                 error = nil
                 launch = newLaunch.randomElement()
                 
@@ -88,13 +88,11 @@ class SpaceXLaunchFetcher : ObservableObject {
                     self.patchImageResponse.1 = "Image URL does not exist"
                     return
                 }
-                
                 fetchImage(url: smallPatchURL) { image, error in
                     objectWillChange.send()
                     if image != nil {
                         patchImageResponse.0 = image
                         patchImageResponse.1 = nil
-                        print("Patch Image changed")
                     } else {
                         self.patchImageResponse.1 = error?.localizedDescription ?? "Image could not be retrieved"
                     }
